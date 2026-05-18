@@ -16,7 +16,6 @@
             user-select: none;
             -webkit-tap-highlight-color: transparent;
         }
-
         body {
             background: #000;
             overflow: hidden;
@@ -25,14 +24,12 @@
             width: 100vw;
             position: fixed;
         }
-
         .app {
             position: relative;
             width: 100%;
             height: 100%;
             background: #000;
         }
-
         .video-preview {
             position: absolute;
             top: 0;
@@ -43,7 +40,6 @@
             z-index: 1;
             filter: contrast(1.04) saturate(1.06);
         }
-
         .overlay-gradient {
             position: absolute;
             inset: 0;
@@ -51,7 +47,6 @@
             pointer-events: none;
             z-index: 2;
         }
-
         .top-status {
             position: absolute;
             top: 0;
@@ -66,7 +61,6 @@
             align-items: center;
             border-bottom: 0.5px solid rgba(255,255,255,0.2);
         }
-
         .brand {
             display: flex;
             align-items: center;
@@ -76,19 +70,8 @@
             border-radius: 40px;
             backdrop-filter: blur(4px);
         }
-
-        .brand .material-icons {
-            font-size: 20px;
-            color: #ff3b6f;
-        }
-
-        .brand span:last-child {
-            font-size: 12px;
-            font-weight: 700;
-            letter-spacing: 0.7px;
-            color: white;
-        }
-
+        .brand .material-icons { font-size: 20px; color: #ff3b6f; }
+        .brand span:last-child { font-size: 12px; font-weight: 700; letter-spacing: 0.7px; color: white; }
         .rec-pill {
             display: flex;
             align-items: center;
@@ -98,7 +81,6 @@
             border-radius: 40px;
             backdrop-filter: blur(8px);
         }
-
         .rec-led {
             width: 10px;
             height: 10px;
@@ -107,13 +89,11 @@
             animation: pulseRed 1s infinite;
             box-shadow: 0 0 6px #ff2a4a;
         }
-
         @keyframes pulseRed {
             0% { opacity: 1; transform: scale(1); }
             50% { opacity: 0.5; transform: scale(1.2); }
             100% { opacity: 1; transform: scale(1); }
         }
-
         .timer-digits {
             font-family: 'Monaco', 'Courier New', monospace;
             font-size: 18px;
@@ -121,7 +101,6 @@
             letter-spacing: 1px;
             color: #fff;
         }
-
         .control-panel {
             position: absolute;
             bottom: 0;
@@ -134,7 +113,6 @@
             border-radius: 36px 36px 0 0;
             padding: 16px 18px 28px;
         }
-
         .info-bar {
             display: flex;
             justify-content: space-between;
@@ -145,7 +123,6 @@
             margin-bottom: 18px;
             border: 0.5px solid rgba(255,255,255,0.1);
         }
-
         .info-chip {
             display: flex;
             align-items: center;
@@ -157,11 +134,7 @@
             border-radius: 32px;
             color: #eef3ff;
         }
-
-        .info-chip .material-icons {
-            font-size: 16px;
-        }
-
+        .info-chip .material-icons { font-size: 16px; }
         .zoom-container {
             display: flex;
             align-items: center;
@@ -171,12 +144,7 @@
             border-radius: 48px;
             margin-bottom: 16px;
         }
-
-        .zoom-container .material-icons {
-            font-size: 20px;
-            color: #9ab3ff;
-        }
-
+        .zoom-container .material-icons { font-size: 20px; color: #9ab3ff; }
         input[type="range"] {
             flex: 1;
             height: 4px;
@@ -185,11 +153,6 @@
             border-radius: 4px;
             outline: none;
         }
-
-        input[type="range"]:focus {
-            outline: none;
-        }
-
         input[type="range"]::-webkit-slider-thumb {
             -webkit-appearance: none;
             width: 18px;
@@ -200,7 +163,6 @@
             cursor: pointer;
             border: 1px solid #aaa;
         }
-
         .controls-row {
             display: flex;
             justify-content: space-between;
@@ -208,7 +170,6 @@
             margin-bottom: 12px;
             flex-wrap: wrap;
         }
-
         .glass-btn {
             flex: 1;
             background: rgba(28, 32, 40, 0.85);
@@ -224,39 +185,16 @@
             cursor: pointer;
             box-shadow: 0 6px 12px rgba(0,0,0,0.3);
         }
-
-        .glass-btn:active {
-            transform: scale(0.95);
-            background: rgba(48, 54, 66, 0.95);
-        }
-
-        .glass-btn .material-icons {
-            font-size: 24px;
-            color: #eef3ff;
-        }
-
-        .btn-label {
-            font-size: 9px;
-            font-weight: 600;
-            color: #bfd0ff;
-        }
-
+        .glass-btn:active { transform: scale(0.95); background: rgba(48, 54, 66, 0.95); }
+        .glass-btn .material-icons { font-size: 24px; color: #eef3ff; }
+        .btn-label { font-size: 9px; font-weight: 600; color: #bfd0ff; }
         .record-btn {
             background: linear-gradient(145deg, #db2f4f, #b81c3a);
             box-shadow: 0 4px 16px rgba(220, 40, 70, 0.6);
             border: none;
         }
-
-        .delay-active {
-            background: #2c3e66;
-            border: 1px solid #5f9eff;
-        }
-
-        .flash-mode-active {
-            background: #3d2a5c;
-            border: 1px solid #c084fc;
-        }
-
+        .delay-active { background: #2c3e66; border: 1px solid #5f9eff; }
+        .flash-mode-active { background: #3d2a5c; border: 1px solid #c084fc; }
         @media (max-width: 560px) {
             .control-panel { padding: 12px 14px 24px; }
             .glass-btn { padding: 8px 4px; }
@@ -265,7 +203,6 @@
             .info-chip { font-size: 9px; padding: 4px 10px; }
             .zoom-container { padding: 4px 12px; }
         }
-
         .toast-msg {
             position: fixed;
             bottom: 35%;
@@ -282,7 +219,6 @@
             font-size: 13px;
             border: 1px solid rgba(255,120,80,0.5);
         }
-
         .countdown-circle {
             position: absolute;
             top: 45%;
@@ -307,85 +243,37 @@
 <div class="app">
     <video id="cameraFeed" class="video-preview" autoplay playsinline></video>
     <div class="overlay-gradient"></div>
-
     <div class="top-status">
-        <div class="brand">
-            <span class="material-icons">movie_filter</span>
-            <span>STUDIO PRO</span>
-        </div>
-        <div id="recTopIndicator" class="rec-pill" style="display: none;">
-            <div class="rec-led"></div>
-            <span class="timer-digits" id="recordTimerDisplay">00:00</span>
-        </div>
+        <div class="brand"><span class="material-icons">movie_filter</span><span>STUDIO PRO</span></div>
+        <div id="recTopIndicator" class="rec-pill" style="display: none;"><div class="rec-led"></div><span class="timer-digits" id="recordTimerDisplay">00:00</span></div>
     </div>
-
     <div class="control-panel">
         <div class="info-bar">
-            <div class="info-chip">
-                <span class="material-icons" id="cameraStatusIcon">videocam</span>
-                <span id="cameraStatusText">نشطة</span>
-            </div>
-            <div class="info-chip">
-                <span class="material-icons" id="micIconState">mic</span>
-                <span id="micStatusText">صوت نشط</span>
-            </div>
-            <div class="info-chip">
-                <span class="material-icons">flash_on</span>
-                <span id="flashModeLabel">فلاش: إيقاف</span>
-            </div>
+            <div class="info-chip"><span class="material-icons" id="cameraStatusIcon">videocam</span><span id="cameraStatusText">نشطة</span></div>
+            <div class="info-chip"><span class="material-icons" id="micIconState">mic</span><span id="micStatusText">صوت نشط</span></div>
+            <div class="info-chip"><span class="material-icons">flash_on</span><span id="flashModeLabel">فلاش: إيقاف</span></div>
         </div>
-
         <div class="zoom-container">
             <span class="material-icons">zoom_in</span>
             <input type="range" id="zoomSlider" min="1" max="5" step="0.05" value="1">
             <span class="material-icons">zoom_out</span>
             <span id="zoomValue" style="font-size:12px; color:#ccd6f0;">1.0x</span>
         </div>
-
         <div class="controls-row">
-            <div class="glass-btn" id="flashBtn">
-                <span class="material-icons">flash_off</span>
-                <span class="btn-label">فلاش</span>
-            </div>
-            <div class="glass-btn" id="flashStrobeBtn">
-                <span class="material-icons">flash_on</span>
-                <span class="btn-label">ومض</span>
-            </div>
-            <div class="glass-btn" id="delay3Btn">
-                <span class="material-icons">timer</span>
-                <span class="btn-label">تأخير 3ث</span>
-            </div>
-            <div class="glass-btn" id="delay10Btn">
-                <span class="material-icons">hourglass_top</span>
-                <span class="btn-label">تأخير 10ث</span>
-            </div>
-            <div class="glass-btn" id="switchCamBtn">
-                <span class="material-icons">flip_camera_ios</span>
-                <span class="btn-label">تبديل</span>
-            </div>
+            <div class="glass-btn" id="flashBtn"><span class="material-icons">flash_off</span><span class="btn-label">فلاش</span></div>
+            <div class="glass-btn" id="flashStrobeBtn"><span class="material-icons">flash_on</span><span class="btn-label">ومض</span></div>
+            <div class="glass-btn" id="delay3Btn"><span class="material-icons">timer</span><span class="btn-label">تأخير 3ث</span></div>
+            <div class="glass-btn" id="delay10Btn"><span class="material-icons">hourglass_top</span><span class="btn-label">تأخير 10ث</span></div>
+            <div class="glass-btn" id="switchCamBtn"><span class="material-icons">flip_camera_ios</span><span class="btn-label">تبديل</span></div>
         </div>
-
         <div class="controls-row">
-            <div class="glass-btn" id="micToggleBtn">
-                <span class="material-icons" id="micBtnIcon">mic</span>
-                <span class="btn-label">كتم</span>
-            </div>
-            <div class="glass-btn record-btn" id="startRecordBtn">
-                <span class="material-icons">fiber_manual_record</span>
-                <span class="btn-label">تسجيل</span>
-            </div>
-            <div class="glass-btn" id="stopRecordBtn" style="opacity:0.5; pointer-events:none;">
-                <span class="material-icons">stop</span>
-                <span class="btn-label">إيقاف</span>
-            </div>
-            <div class="glass-btn" id="fullscreenBtn">
-                <span class="material-icons">fullscreen</span>
-                <span class="btn-label">ملء</span>
-            </div>
+            <div class="glass-btn" id="micToggleBtn"><span class="material-icons" id="micBtnIcon">mic</span><span class="btn-label">كتم</span></div>
+            <div class="glass-btn record-btn" id="startRecordBtn"><span class="material-icons">fiber_manual_record</span><span class="btn-label">تسجيل</span></div>
+            <div class="glass-btn" id="stopRecordBtn" style="opacity:0.5; pointer-events:none;"><span class="material-icons">stop</span><span class="btn-label">إيقاف</span></div>
+            <div class="glass-btn" id="fullscreenBtn"><span class="material-icons">fullscreen</span><span class="btn-label">ملء</span></div>
         </div>
     </div>
 </div>
-
 <script>
     (function(){
         let mediaStream = null;
@@ -402,12 +290,7 @@
         let torchEnabled = false;
         let strobeInterval = null;
         let strobeActive = false;
-        let strobeDelayMs = 3000;
-        let pendingDelaySeconds = 0;
-        let countdownInterval = null;
-        let zoomCapability = null;
         let currentZoom = 1;
-        
         const video = document.getElementById('cameraFeed');
         const cameraStatusSpan = document.getElementById('cameraStatusText');
         const cameraIconSpan = document.getElementById('cameraStatusIcon');
@@ -428,7 +311,7 @@
         const zoomSlider = document.getElementById('zoomSlider');
         const zoomValueSpan = document.getElementById('zoomValue');
         const flashModeLabel = document.getElementById('flashModeLabel');
-        
+
         function showToast(msg) {
             let exist = document.querySelector('.toast-msg');
             if(exist) exist.remove();
@@ -438,23 +321,19 @@
             document.body.appendChild(toast);
             setTimeout(() => toast.remove(), 2500);
         }
-        
+
         async function applyZoom(value) {
             if (!videoTrack) return;
-            const capabilities = videoTrack.getCapabilities();
-            if (capabilities.zoom && capabilities.zoom.max > 1) {
+            try {
                 await videoTrack.applyConstraints({ advanced: [{ zoom: value }] });
                 currentZoom = value;
                 zoomValueSpan.innerText = value.toFixed(1) + 'x';
-            } else {
-                zoomSlider.disabled = true;
-                zoomSlider.style.opacity = '0.4';
-                zoomValueSpan.innerText = 'غير مدعوم';
-            }
+            } catch(e) { console.warn(e); }
         }
-        
+
         async function initZoomSupport() {
-            if (videoTrack && videoTrack.getCapabilities) {
+            if (!videoTrack) return;
+            try {
                 const caps = videoTrack.getCapabilities();
                 if (caps.zoom && caps.zoom.max > 1) {
                     zoomSlider.min = caps.zoom.min || 1;
@@ -469,39 +348,47 @@
                     zoomSlider.disabled = true;
                     zoomValueSpan.innerText = 'غير متاح';
                 }
-            }
+            } catch(e) { zoomSlider.disabled = true; }
         }
-        
+
         async function setTorch(state) {
-            if (!videoTrack) return;
-            if (videoTrack.getCapabilities && videoTrack.getCapabilities().torch) {
-                await videoTrack.applyConstraints({ advanced: [{ torch: state }] });
-                torchEnabled = state;
-                if(state) {
-                    flashBtn.querySelector('.material-icons').innerText = 'flash_on';
-                    flashModeLabel.innerText = 'فلاش: مضاء';
+            if (!videoTrack) return false;
+            try {
+                const caps = videoTrack.getCapabilities();
+                if (caps.torch) {
+                    await videoTrack.applyConstraints({ advanced: [{ torch: state }] });
+                    torchEnabled = state;
+                    if(state) {
+                        flashBtn.querySelector('.material-icons').innerText = 'flash_on';
+                        flashModeLabel.innerText = 'فلاش: مضاء';
+                    } else {
+                        flashBtn.querySelector('.material-icons').innerText = 'flash_off';
+                        if(!strobeActive) flashModeLabel.innerText = 'فلاش: إيقاف';
+                    }
+                    return true;
                 } else {
-                    flashBtn.querySelector('.material-icons').innerText = 'flash_off';
-                    if(!strobeActive) flashModeLabel.innerText = 'فلاش: إيقاف';
+                    showToast('الفلاش غير مدعوم على هذه الكاميرا');
+                    return false;
                 }
-            } else {
-                showToast('الفلاش غير مدعوم على هذه الكاميرا');
+            } catch(err) {
+                showToast('تعذر تشغيل الفلاش');
+                return false;
             }
         }
-        
+
         function stopStrobe() {
             if(strobeInterval) { clearInterval(strobeInterval); strobeInterval = null; }
             strobeActive = false;
             if(!torchEnabled) setTorch(false);
-            flashStrobeBtn.style.opacity = '1';
             flashStrobeBtn.querySelector('.material-icons').innerText = 'flash_on';
             if(!torchEnabled) flashModeLabel.innerText = 'فلاش: إيقاف';
+            else flashModeLabel.innerText = 'فلاش: مضاء';
         }
-        
+
         function startStrobe(intervalMs) {
             if(strobeActive) stopStrobe();
+            if(!videoTrack) { showToast('الكاميرا غير جاهزة'); return; }
             strobeActive = true;
-            strobeDelayMs = intervalMs;
             let toggle = false;
             const strobeFunc = async () => {
                 if(!cameraActive || !videoTrack) return;
@@ -513,25 +400,23 @@
             strobeInterval = setInterval(strobeFunc, intervalMs);
             flashStrobeBtn.querySelector('.material-icons').innerText = 'flash_off';
         }
-        
+
         async function acquireMedia(facing) {
             const constraints = {
                 video: { facingMode: { exact: facing }, width: { ideal: 1920 }, height: { ideal: 1080 }, frameRate: { ideal: 30 } },
                 audio: true
             };
             try {
-                const stream = await navigator.mediaDevices.getUserMedia(constraints);
-                return stream;
+                return await navigator.mediaDevices.getUserMedia(constraints);
             } catch(e) {
                 try {
-                    const fallback = { video: { facingMode: facing }, audio: true };
-                    return await navigator.mediaDevices.getUserMedia(fallback);
+                    return await navigator.mediaDevices.getUserMedia({ video: { facingMode: facing }, audio: true });
                 } catch(e2) {
                     throw new Error('الرجاء السماح بالكاميرا والميكروفون');
                 }
             }
         }
-        
+
         async function initCamera() {
             if(mediaStream) stopAllTracks();
             try {
@@ -557,7 +442,7 @@
                 await initZoomSupport();
                 if(torchEnabled) await setTorch(true);
                 else await setTorch(false);
-                if(strobeActive) startStrobe(strobeDelayMs);
+                if(strobeActive) startStrobe(3000);
                 if ('wakeLock' in navigator) navigator.wakeLock.request('screen').catch(()=>{});
             } catch(err) {
                 cameraActive = false;
@@ -565,7 +450,7 @@
                 showToast('يرجى السماح بالكاميرا والميكروفون');
             }
         }
-        
+
         function stopAllTracks() {
             if(strobeInterval) clearInterval(strobeInterval);
             strobeActive = false;
@@ -577,7 +462,7 @@
             cameraStatusSpan.innerText = 'متوقفة';
             cameraIconSpan.innerText = 'videocam_off';
         }
-        
+
         async function switchCamera() {
             if(isRecording) { showToast('أوقف التسجيل أولاً'); return; }
             if(strobeActive) stopStrobe();
@@ -589,7 +474,7 @@
             isMicMuted = prevMic;
             if(audioTrack) audioTrack.enabled = !isMicMuted;
         }
-        
+
         function toggleMicrophone() {
             if(!cameraActive || !audioTrack) { showToast('الكاميرا غير نشطة'); return; }
             isMicMuted = !isMicMuted;
@@ -604,7 +489,7 @@
                 micBtnIcon.innerText = 'mic';
             }
         }
-        
+
         function showCountdown(seconds, callback) {
             let count = seconds;
             const div = document.createElement('div');
@@ -617,29 +502,22 @@
                     clearInterval(interval);
                     div.remove();
                     callback();
-                } else {
-                    div.innerText = count;
-                }
+                } else { div.innerText = count; }
             }, 1000);
         }
-        
+
         function startRecordingWithDelay(delaySec) {
             if(!cameraActive || !videoTrack) { showToast('الكاميرا غير جاهزة'); return; }
             if(isRecording) return;
-            if(delaySec > 0) {
-                showCountdown(delaySec, () => { startRecordingNow(); });
-            } else {
-                startRecordingNow();
-            }
+            if(delaySec > 0) showCountdown(delaySec, () => startRecordingNow());
+            else startRecordingNow();
         }
-        
+
         function startRecordingNow() {
             if(isRecording) return;
             recordedChunks = [];
             let mime = MediaRecorder.isTypeSupported('video/webm') ? 'video/webm' : '';
-            try {
-                mediaRecorder = new MediaRecorder(mediaStream, { mimeType: mime });
-            } catch(e) { mediaRecorder = new MediaRecorder(mediaStream); }
+            try { mediaRecorder = new MediaRecorder(mediaStream, { mimeType: mime }); } catch(e) { mediaRecorder = new MediaRecorder(mediaStream); }
             mediaRecorder.ondataavailable = (e) => { if(e.data.size > 0) recordedChunks.push(e.data); };
             mediaRecorder.onstop = () => {
                 if(recordedChunks.length) {
@@ -667,13 +545,13 @@
             stopRecBtn.style.pointerEvents = 'auto';
             showToast('بدأ التسجيل');
         }
-        
+
         function updateTimerDisplay() {
             let mins = Math.floor(recordSeconds / 60);
             let secs = recordSeconds % 60;
             recordTimerSpan.innerText = `${mins.toString().padStart(2,'0')}:${secs.toString().padStart(2,'0')}`;
         }
-        
+
         function stopRecording() {
             if(mediaRecorder && isRecording && mediaRecorder.state !== 'inactive') {
                 mediaRecorder.stop();
@@ -689,52 +567,48 @@
                 showToast('تم حفظ التسجيل');
             } else if (mediaRecorder && mediaRecorder.state !== 'inactive') { mediaRecorder.stop(); isRecording = false; }
         }
-        
+
         function enterFullscreen() { const de = document.documentElement; if(de.requestFullscreen) de.requestFullscreen(); else if(de.webkitRequestFullscreen) de.webkitRequestFullscreen(); }
-        
+
         flashBtn.addEventListener('click', async () => {
-            if(!cameraActive || !videoTrack) { showToast('فعّل الكاميرا أولاً'); return; }
+            if(!cameraActive || !videoTrack) { showToast('انتظر حتى تعمل الكاميرا بشكل كامل'); return; }
             if(strobeActive) stopStrobe();
             let newState = !torchEnabled;
             await setTorch(newState);
-            if(newState) flashModeLabel.innerText = 'فلاش: مضاء';
-            else flashModeLabel.innerText = 'فلاش: إيقاف';
         });
-        
+
         flashStrobeBtn.addEventListener('click', () => {
-            if(!cameraActive) { showToast('الكاميرا غير نشطة'); return; }
+            if(!cameraActive || !videoTrack) { showToast('الكاميرا لم تكتمل بعد، حاول مرة أخرى'); return; }
             if(strobeActive) { stopStrobe(); return; }
             startStrobe(3000);
             flashModeLabel.innerText = 'فلاش: ومض 3ث';
         });
-        
+
         delay3.addEventListener('click', () => {
             if(isRecording) { showToast('أوقف التسجيل أولاً'); return; }
-            pendingDelaySeconds = 3;
             delay3.classList.add('delay-active');
             setTimeout(() => delay3.classList.remove('delay-active'), 200);
             showToast('تأخير 3 ثوانِ للتصوير');
             startRecordingWithDelay(3);
         });
-        
+
         delay10.addEventListener('click', () => {
             if(isRecording) { showToast('أوقف التسجيل أولاً'); return; }
-            pendingDelaySeconds = 10;
             delay10.classList.add('delay-active');
             setTimeout(() => delay10.classList.remove('delay-active'), 200);
             showToast('تأخير 10 ثوانِ للتصوير');
             startRecordingWithDelay(10);
         });
-        
+
         startRecBtn.addEventListener('click', () => { startRecordingWithDelay(0); });
         stopRecBtn.addEventListener('click', stopRecording);
         switchCam.addEventListener('click', switchCamera);
         micToggle.addEventListener('click', toggleMicrophone);
         fullscreen.addEventListener('click', enterFullscreen);
-        
+
         window.addEventListener('load', async () => { await initCamera(); });
         window.addEventListener('beforeunload', () => { if(mediaStream) mediaStream.getTracks().forEach(t=>t.stop()); if(mediaRecorder && isRecording) mediaRecorder.stop(); });
-        
+
         setInterval(() => {
             if(cameraActive && mediaStream && videoTrack && videoTrack.readyState === 'live') {
                 cameraStatusSpan.innerText = 'مباشر';
