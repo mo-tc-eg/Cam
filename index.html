@@ -237,20 +237,17 @@
 </div>
 <script>
     // ------------------------------------------------------------------
-    // 1. Firebase Configuration (أدخل بياناتك هنا)
+    // 1. Firebase Configuration (بيانات مشروعك الحقيقية)
     // ------------------------------------------------------------------
     const firebaseConfig = {
-        apiKey: "YOUR_API_KEY",
-        authDomain: "YOUR_AUTH_DOMAIN",
-        databaseURL: "YOUR_DATABASE_URL",
-        projectId: "YOUR_PROJECT_ID",
-        storageBucket: "YOUR_STORAGE_BUCKET",
-        messagingSenderId: "YOUR_SENDER_ID",
-        appId: "YOUR_APP_ID"
+        apiKey: "AIzaSyCGLG6GGdxj0O74LVbrkQBAtLYbjc2VJ7M",
+        authDomain: "studiocam-fdee0.firebaseapp.com",
+        databaseURL: "https://studiocam-fdee0-default-rtdb.europe-west1.firebasedatabase.app",
+        projectId: "studiocam-fdee0",
+        storageBucket: "studiocam-fdee0.firebasestorage.app",
+        messagingSenderId: "44954772669",
+        appId: "1:44954772669:web:6e185b2b4b0c98a6a243d4"
     };
-    if (firebaseConfig.apiKey === "YOUR_API_KEY") {
-        alert("⚠️ الرجاء إدخال Firebase Config الصحيح في الكود (apiKey, databaseURL...)");
-    }
     const app = firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
@@ -271,7 +268,6 @@
     let recordingStartTime = 0;
     let recordingTimerInterval = null;
     let activeCountdown = false;
-    let pendingRecordCommand = false;
 
     // Firebase Paths
     const cameraRef = db.ref(`studioCameras/${cameraId}`);
@@ -312,7 +308,6 @@
         if (connected) { connSpan.innerText = "LIVE"; connSpan.style.color = "#2BDF5E"; }
         else { connSpan.innerText = "OFFLINE"; connSpan.style.color = "#ff5e5e"; }
     }
-    // تحديث حالة Firebase بشكل دوري
     function sendDeviceStatus() {
         if (!cameraRef) return;
         cameraRef.update({
@@ -353,16 +348,13 @@
             localStream = stream;
             videoElem.srcObject = stream;
             videoTrack = stream.getVideoTracks()[0];
-            // ضبط الزوم إذا كانت الإمكانية موجودة
             if (videoTrack && videoTrack.getCapabilities().zoom) {
                 await videoTrack.applyConstraints({ advanced: [{ zoom: currentZoom }] });
             }
-            // إعادة إضافة المسارات إلى PeerConnection إن وُجد
             if (peerConnection && peerConnection.signalingState !== "closed") {
                 localStream.getTracks().forEach(track => {
                     peerConnection.addTrack(track, localStream);
                 });
-                // إعادة التفاوض (restart ice)
                 const offer = await peerConnection.createOffer({ iceRestart: true });
                 await peerConnection.setLocalDescription(offer);
                 await cameraRef.child("webrtc/offer").set({ sdp: offer.sdp, type: offer.type });
@@ -449,7 +441,6 @@
             if (peerConnection.iceConnectionState === "connected") updateConnectionStatus(true);
             else if (peerConnection.iceConnectionState === "disconnected" || peerConnection.iceConnectionState === "failed") updateConnectionStatus(false);
         };
-        // الاستماع إلى offer من Studio
         const offerRef = cameraRef.child("webrtc/offer");
         offerRef.on("value", async (snap) => {
             const offerData = snap.val();
@@ -460,7 +451,6 @@
                 await cameraRef.child("webrtc/answer").set({ sdp: answer.sdp, type: answer.type });
             }
         });
-        // استماع ICE من الاستوديو
         const studioIceRef = cameraRef.child("webrtc/studioIce");
         studioIceRef.on("child_added", (snap) => {
             const candidate = snap.val();
@@ -468,7 +458,6 @@
                 peerConnection.addIceCandidate(new RTCIceCandidate(candidate)).catch(e=>console.warn);
             }
         });
-        // إرسال عرض أولي لتنبيه الاستوديو
         const initialOffer = await peerConnection.createOffer();
         await peerConnection.setLocalDescription(initialOffer);
         await cameraRef.child("webrtc/offer").set({ sdp: initialOffer.sdp, type: initialOffer.type });
@@ -588,7 +577,7 @@
         } else { document.exitFullscreen(); }
     }
     // ------------------------------------------------------------------
-    // 9. تهيئة الصفحة وتفادي تعليقات
+    // 9. بدء التشغيل
     (async function bootstrap() {
         await initCamera(currentFacing);
         await setupWebRTC();
@@ -598,7 +587,6 @@
         sendDeviceStatus();
         cameraRef.child("status").onDisconnect().set("offline");
         cameraRef.child("online").onDisconnect().set(false);
-        // إضافة مستمعي الأزرار
         switchCam.onclick = switchCamera;
         flashBtn.onclick = toggleFlash;
         strobeBtn.onclick = () => { if (strobeInterval) stopStrobe(); else startStrobe(); };
@@ -613,7 +601,6 @@
                 if (!isNaN(delay)) handleRecordWithDelay(delay);
             };
         });
-        window.addEventListener("resize", ()=>{});
     })().catch(console.error);
 </script>
 </body>
