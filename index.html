@@ -3,605 +3,261 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Pro Cinema Client | Studio Camera</title>
-    <!-- Google Material Icons + Google Fonts -->
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700;800&display=swap" rel="stylesheet">
-    <!-- Firebase SDKs (Compat) -->
+    <title>CMT Camera</title>
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box}
+        body{background:#000;font-family:system-ui,-apple-system,sans-serif;overflow:hidden;height:100vh;width:100vw}
+        .container{position:relative;width:100%;height:100%}
+        #previewVideo{position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;background:#000;z-index:1}
+        .glass-panel{position:absolute;bottom:0;left:0;right:0;background:rgba(12,18,28,0.75);backdrop-filter:blur(20px);border-top:1px solid rgba(255,255,255,0.1);border-radius:32px 32px 0 0;padding:16px 16px 24px;z-index:20}
+        .status-bar{display:flex;justify-content:space-between;background:rgba(0,0,0,0.55);backdrop-filter:blur(12px);border-radius:48px;padding:6px 14px;margin-bottom:16px;font-size:11px;font-weight:500;color:#EFF3FC;flex-wrap:wrap;gap:8px}
+        .status-chip{display:flex;align-items:center;gap:5px;background:rgba(30,40,55,0.7);padding:3px 10px;border-radius:40px}
+        .live-dot{width:7px;height:7px;border-radius:7px;background:#ff3b30;box-shadow:0 0 5px #ff3b30;animation:pulseRed 1.2s infinite}
+        @keyframes pulseRed{0%{opacity:0.4}100%{opacity:1}}
+        .rec-timer{font-family:monospace;font-weight:700;font-size:16px;background:#000000aa;padding:3px 10px;border-radius:32px}
+        .controls-grid{display:flex;flex-wrap:wrap;justify-content:center;gap:12px;margin:10px 0 8px}
+        .ctrl-btn{background:rgba(24,32,45,0.9);border:none;color:#F0F4FF;border-radius:60px;width:52px;height:52px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:0.1s;font-size:1.6rem}
+        .ctrl-btn:active{transform:scale(0.94);background:#2f3b54}
+        .record-main{background:#E34F4F;width:64px;height:64px;box-shadow:0 0 8px rgba(227,79,79,0.6)}
+        .record-main.recording-active{background:#b71c1c;animation:pulseRec 0.9s infinite}
+        @keyframes pulseRec{0%{box-shadow:0 0 0 0 #ff5252}100%{box-shadow:0 0 0 10px rgba(255,82,82,0)}}
+        .delay-buttons{display:flex;justify-content:center;gap:12px;margin-top:10px}
+        .delay-badge{background:rgba(0,0,0,0.7);border-radius:40px;padding:5px 12px;font-size:11px;font-weight:600;display:flex;align-items:center;gap:5px;backdrop-filter:blur(8px);cursor:pointer;border:0.5px solid rgba(255,255,255,0.2)}
+        .fullscreen-btn{position:absolute;top:20px;right:16px;background:rgba(0,0,0,0.5);backdrop-filter:blur(12px);border-radius:50px;padding:8px;z-index:25;cursor:pointer;border:none;color:white;font-size:1.4rem}
+        @media (max-width:500px){.ctrl-btn{width:48px;height:48px;font-size:1.4rem}.record-main{width:58px;height:58px}.glass-panel{padding:12px 12px 20px}}
+    </style>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            user-select: none;
-            -webkit-tap-highlight-color: transparent;
-        }
-        body {
-            background: #000000;
-            font-family: 'Inter', sans-serif;
-            overflow: hidden;
-            height: 100vh;
-            width: 100vw;
-            position: fixed;
-        }
-        .cinema-container {
-            position: relative;
-            width: 100%;
-            height: 100%;
-            background: radial-gradient(circle at 30% 20%, #0A0D14, #020304);
-        }
-        /* عنصر الفيديو (كاميرا) */
-        #previewVideo {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            background: #000;
-            z-index: 1;
-            transform: scaleX(1);
-        }
-        /* طبقة الزجاج والمعلومات */
-        .glass-panel {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            background: rgba(12, 18, 28, 0.75);
-            backdrop-filter: blur(20px);
-            border-top: 1px solid rgba(255,255,255,0.1);
-            border-radius: 32px 32px 0 0;
-            padding: 20px 20px 30px;
-            z-index: 20;
-            transition: all 0.3s ease;
-        }
-        .status-bar {
-            display: flex;
-            justify-content: space-between;
-            background: rgba(0,0,0,0.55);
-            backdrop-filter: blur(12px);
-            border-radius: 48px;
-            padding: 8px 18px;
-            margin-bottom: 20px;
-            font-size: 12px;
-            font-weight: 500;
-            letter-spacing: 0.3px;
-            color: #EFF3FC;
-            border: 0.5px solid rgba(255,255,255,0.2);
-        }
-        .status-chip {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            background: rgba(30,40,55,0.7);
-            padding: 4px 12px;
-            border-radius: 40px;
-        }
-        .live-dot {
-            width: 8px;
-            height: 8px;
-            border-radius: 8px;
-            background: #ff3b30;
-            box-shadow: 0 0 6px #ff3b30;
-            animation: pulseRed 1.2s infinite;
-        }
-        @keyframes pulseRed { 0% { opacity: 0.4; } 100% { opacity: 1; } }
-        .rec-timer {
-            font-family: monospace;
-            font-weight: 700;
-            font-size: 18px;
-            background: #000000aa;
-            padding: 4px 12px;
-            border-radius: 32px;
-            letter-spacing: 1px;
-        }
-        .controls-grid {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: 16px;
-            margin: 12px 0 6px;
-        }
-        .ctrl-glass-btn {
-            background: rgba(24, 32, 45, 0.9);
-            border: none;
-            color: #F0F4FF;
-            border-radius: 60px;
-            width: 58px;
-            height: 58px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            transition: 0.2s cubic-bezier(0.2, 0.9, 0.4, 1.1);
-            box-shadow: 0 6px 14px rgba(0,0,0,0.4);
-            backdrop-filter: blur(4px);
-        }
-        .ctrl-glass-btn:active { transform: scale(0.94); background: #2f3b54; }
-        .record-main {
-            background: #E34F4F;
-            width: 70px;
-            height: 70px;
-            box-shadow: 0 0 12px rgba(227,79,79,0.6);
-        }
-        .record-main.recording-active {
-            background: #b71c1c;
-            animation: pulseRec 0.9s infinite;
-        }
-        @keyframes pulseRec { 0% { box-shadow: 0 0 0 0 #ff5252; } 100% { box-shadow: 0 0 0 12px rgba(255,82,82,0); } }
-        .delay-buttons {
-            display: flex;
-            justify-content: center;
-            gap: 12px;
-            margin-top: 12px;
-        }
-        .delay-badge {
-            background: rgba(0,0,0,0.7);
-            border-radius: 40px;
-            padding: 6px 14px;
-            font-size: 12px;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            backdrop-filter: blur(8px);
-            cursor: pointer;
-            transition: 0.2s;
-            border: 0.5px solid rgba(255,255,255,0.2);
-        }
-        .fullscreen-btn {
-            position: absolute;
-            top: 24px;
-            right: 20px;
-            background: rgba(0,0,0,0.5);
-            backdrop-filter: blur(12px);
-            border-radius: 50px;
-            padding: 8px;
-            z-index: 25;
-            cursor: pointer;
-            border: none;
-            color: white;
-        }
-        .countdown-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.85);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 200;
-            font-size: 120px;
-            font-weight: 900;
-            font-family: monospace;
-            color: white;
-            backdrop-filter: blur(12px);
-            pointer-events: none;
-        }
-        .toast-message {
-            position: absolute;
-            bottom: 140px;
-            left: 20px;
-            right: 20px;
-            background: #1F2A3E;
-            padding: 10px;
-            border-radius: 50px;
-            text-align: center;
-            font-size: 12px;
-            z-index: 70;
-            font-weight: 500;
-        }
-        @media (max-width: 560px) {
-            .ctrl-glass-btn { width: 52px; height: 52px; }
-            .record-main { width: 64px; height: 64px; }
-            .glass-panel { padding: 16px 16px 24px; }
-        }
-        .material-icons { font-size: 26px; }
-    </style>
 </head>
 <body>
-<div class="cinema-container">
+<div class="container">
     <video id="previewVideo" autoplay playsinline muted></video>
-    <button class="fullscreen-btn" id="fullscreenBtn"><span class="material-icons">fullscreen</span></button>
+    <button class="fullscreen-btn" id="fullscreenBtn">⛶</button>
     <div class="glass-panel">
         <div class="status-bar">
-            <div class="status-chip"><span class="material-icons" style="font-size:16px;">videocam</span> <span id="liveStatus">CAMERA LIVE</span></div>
-            <div class="status-chip"><span class="material-icons" style="font-size:16px;">mic</span> <span id="micStatus">MIC ACTIVE</span></div>
-            <div class="status-chip"><span class="material-icons" style="font-size:16px;">flash_on</span> <span id="flashStatus">FLASH OFF</span></div>
-            <div class="status-chip"><span class="material-icons" style="font-size:16px;">battery_charging_full</span> <span id="batteryLevel">--%</span></div>
-            <div class="status-chip"><span class="material-icons" style="font-size:16px;">signal_cellular_alt</span> <span id="connStatus">LIVE</span></div>
+            <div class="status-chip"><span>📷</span> <span id="liveStatus">LIVE</span></div>
+            <div class="status-chip"><span>🎤</span> <span id="micStatus">ACTIVE</span></div>
+            <div class="status-chip"><span>⚡</span> <span id="flashStatus">OFF</span></div>
+            <div class="status-chip"><span>🔋</span> <span id="batteryLevel">--%</span></div>
+            <div class="status-chip"><span>📶</span> <span id="connStatus">ONLINE</span></div>
         </div>
-        <div style="display: flex; justify-content: center; align-items: center; gap: 12px; margin-bottom: 10px;">
+        <div style="display:flex; justify-content:center; align-items:center; gap:8px; margin-bottom:8px">
             <div class="rec-timer" id="recTimerDisplay">00:00</div>
-            <div id="recordingBadge" style="background:#ff4d4d40; border-radius: 30px; padding: 4px 12px; font-size:12px;">● غير مسجل</div>
+            <div id="recordingBadge" style="background:#ff4d4d40; border-radius:30px; padding:3px 10px; font-size:11px;">● غير مسجل</div>
         </div>
         <div class="controls-grid">
-            <button class="ctrl-glass-btn" id="switchCamBtn"><span class="material-icons">flip_camera_android</span></button>
-            <button class="ctrl-glass-btn" id="flashBtn"><span class="material-icons">flash_off</span></button>
-            <button class="ctrl-glass-btn" id="strobeBtn"><span class="material-icons">bolt</span></button>
-            <button class="ctrl-glass-btn" id="micMuteBtn"><span class="material-icons">mic</span></button>
-            <button class="ctrl-glass-btn" id="zoomInBtn"><span class="material-icons">zoom_in</span></button>
-            <button class="ctrl-glass-btn" id="zoomOutBtn"><span class="material-icons">zoom_out</span></button>
-            <button class="ctrl-glass-btn record-main" id="recordMainBtn"><span class="material-icons">circle</span></button>
+            <button class="ctrl-btn" id="switchCamBtn">🔄</button>
+            <button class="ctrl-btn" id="flashBtn">⚡</button>
+            <button class="ctrl-btn" id="strobeBtn">💡</button>
+            <button class="ctrl-btn" id="micMuteBtn">🎤</button>
+            <button class="ctrl-btn" id="zoomInBtn">➕</button>
+            <button class="ctrl-btn" id="zoomOutBtn">➖</button>
+            <button class="ctrl-btn record-main" id="recordMainBtn">🔴</button>
         </div>
         <div class="delay-buttons">
-            <div class="delay-badge" data-delay="3"><span class="material-icons">timer</span> 3s Countdown</div>
-            <div class="delay-badge" data-delay="10"><span class="material-icons">hourglass_top</span> 10s Countdown</div>
+            <div class="delay-badge" data-delay="3">⏱️ 3s</div>
+            <div class="delay-badge" data-delay="10">⏱️ 10s</div>
         </div>
     </div>
 </div>
 <script>
-    // ------------------------------------------------------------------
-    // 1. Firebase Configuration (بيانات مشروعك الحقيقية)
-    // ------------------------------------------------------------------
-    const firebaseConfig = {
-        apiKey: "AIzaSyCGLG6GGdxj0O74LVbrkQBAtLYbjc2VJ7M",
-        authDomain: "studiocam-fdee0.firebaseapp.com",
-        databaseURL: "https://studiocam-fdee0-default-rtdb.europe-west1.firebasedatabase.app",
-        projectId: "studiocam-fdee0",
-        storageBucket: "studiocam-fdee0.firebasestorage.app",
-        messagingSenderId: "44954772669",
-        appId: "1:44954772669:web:6e185b2b4b0c98a6a243d4"
-    };
-    const app = firebase.initializeApp(firebaseConfig);
-    const db = firebase.database();
+const firebaseConfig = {
+    apiKey: "AIzaSyCGLG6GGdxj0O74LVbrkQBAtLYbjc2VJ7M",
+    authDomain: "studiocam-fdee0.firebaseapp.com",
+    databaseURL: "https://studiocam-fdee0-default-rtdb.europe-west1.firebasedatabase.app",
+    projectId: "studiocam-fdee0",
+    storageBucket: "studiocam-fdee0.firebasestorage.app",
+    messagingSenderId: "44954772669",
+    appId: "1:44954772669:web:6e185b2b4b0c98a6a243d4"
+};
+const app = firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+let localStream = null;
+let peerConnection = null;
+let cameraId = "cam_" + Date.now() + "_" + Math.random().toString(36).substr(2, 6);
+let currentFacing = "user";
+let currentTorch = false;
+let strobeInterval = null;
+let isMicMuted = false;
+let currentZoom = 1;
+let videoTrack = null;
+let mediaRecorder = null;
+let recordedChunks = [];
+let isRecording = false;
+let recordingStartTime = 0;
+let recordingTimerInterval = null;
+let activeCountdown = false;
+const cameraRef = db.ref(`studioCameras/${cameraId}`);
+const controlRef = db.ref(`studioCameras/${cameraId}/control`);
+const videoElem = document.getElementById("previewVideo");
+const liveStatusSpan = document.getElementById("liveStatus");
+const micStatusSpan = document.getElementById("micStatus");
+const flashStatusSpan = document.getElementById("flashStatus");
+const batterySpan = document.getElementById("batteryLevel");
+const connSpan = document.getElementById("connStatus");
+const recTimerDisplay = document.getElementById("recTimerDisplay");
+const recordingBadgeSpan = document.getElementById("recordingBadge");
+const recordMainBtn = document.getElementById("recordMainBtn");
+const switchCam = document.getElementById("switchCamBtn");
+const flashBtn = document.getElementById("flashBtn");
+const strobeBtn = document.getElementById("strobeBtn");
+const micMuteBtn = document.getElementById("micMuteBtn");
+const zoomIn = document.getElementById("zoomInBtn");
+const zoomOut = document.getElementById("zoomOutBtn");
+const fullscreenBtn = document.getElementById("fullscreenBtn");
+const delayBadges = document.querySelectorAll(".delay-badge");
 
-    // ------------------------------------------------------------------
-    // 2. المتغيرات العامة
-    let localStream = null;
-    let peerConnection = null;
-    let cameraId = "cam_" + Date.now() + "_" + Math.random().toString(36).substr(2, 8);
-    let currentFacing = "user";        // 'user' or 'environment'
-    let currentTorch = false;
-    let strobeInterval = null;
-    let isMicMuted = false;
-    let currentZoom = 1;
-    let videoTrack = null;
-    let mediaRecorder = null;
-    let recordedChunks = [];
-    let isRecording = false;
-    let recordingStartTime = 0;
-    let recordingTimerInterval = null;
-    let activeCountdown = false;
+async function updateBattery() {
+    if ('getBattery' in navigator) {
+        try { const battery = await navigator.getBattery(); const level = Math.floor(battery.level * 100); batterySpan.innerText = `${level}%`; } catch(e) { batterySpan.innerText = "N/A"; }
+    } else { batterySpan.innerText = "—"; }
+}
+function sendDeviceStatus() {
+    cameraRef.update({ status: "ready", online: true, recording: isRecording, muted: isMicMuted, flash: currentTorch, battery: batterySpan.innerText, deviceName: "Mobile Cam", timestamp: Date.now(), cameraId: cameraId }).catch(e=>console.warn);
+}
+setInterval(sendDeviceStatus, 5000);
+window.addEventListener("beforeunload", ()=>{ if(peerConnection) peerConnection.close(); if(localStream) localStream.getTracks().forEach(t=>t.stop()); cameraRef.remove().catch(e=>console.log); });
 
-    // Firebase Paths
-    const cameraRef = db.ref(`studioCameras/${cameraId}`);
-    const controlRef = db.ref(`studioCameras/${cameraId}/control`);
+async function initCamera(facingMode) {
+    if (localStream) { localStream.getTracks().forEach(track => track.stop()); if (peerConnection) { peerConnection.getSenders().forEach(sender => peerConnection.removeTrack(sender)); } }
+    const constraints = { video: { facingMode: { exact: facingMode }, zoom: currentZoom }, audio: true };
+    try {
+        const stream = await navigator.mediaDevices.getUserMedia(constraints);
+        localStream = stream;
+        videoElem.srcObject = stream;
+        videoTrack = stream.getVideoTracks()[0];
+        if (videoTrack && videoTrack.getCapabilities().zoom) await videoTrack.applyConstraints({ advanced: [{ zoom: currentZoom }] });
+        if (peerConnection && peerConnection.signalingState !== "closed") {
+            localStream.getTracks().forEach(track => { peerConnection.addTrack(track, localStream); });
+            const offer = await peerConnection.createOffer({ iceRestart: true });
+            await peerConnection.setLocalDescription(offer);
+            await cameraRef.child("webrtc/offer").set({ sdp: offer.sdp, type: offer.type });
+        }
+        liveStatusSpan.innerText = "LIVE";
+        updateMicStatus();
+    } catch (err) { alert("الرجاء السماح بالكاميرا والميكروفون"); }
+}
+async function switchCamera() { currentFacing = currentFacing === "user" ? "environment" : "user"; await initCamera(currentFacing); if (currentTorch && videoTrack && videoTrack.getCapabilities().torch) await videoTrack.applyConstraints({ advanced: [{ torch: true }] }); }
+async function setZoom(delta) { if (!videoTrack) return; const caps = videoTrack.getCapabilities(); if (caps.zoom) { let newZoom = currentZoom + delta; newZoom = Math.min(caps.zoom.max, Math.max(caps.zoom.min, newZoom)); currentZoom = newZoom; await videoTrack.applyConstraints({ advanced: [{ zoom: currentZoom }] }); } }
+async function toggleFlash() { if (!videoTrack || !videoTrack.getCapabilities().torch) { alert("الفلاش غير مدعوم"); return; } currentTorch = !currentTorch; await videoTrack.applyConstraints({ advanced: [{ torch: currentTorch }] }); flashBtn.innerHTML = currentTorch ? "⚡" : "⚡"; flashStatusSpan.innerText = currentTorch ? "ON" : "OFF"; sendDeviceStatus(); }
+function startStrobe() { if (!videoTrack || !videoTrack.getCapabilities().torch) { alert("الفلاش غير مدعوم"); return; } if (strobeInterval) clearInterval(strobeInterval); strobeInterval = setInterval(async () => { currentTorch = !currentTorch; await videoTrack.applyConstraints({ advanced: [{ torch: currentTorch }] }).catch(e=>{}); }, 200); }
+function stopStrobe() { if (strobeInterval) { clearInterval(strobeInterval); strobeInterval = null; } if (currentTorch) toggleFlash(); else { if(videoTrack) videoTrack.applyConstraints({ advanced: [{ torch: false }] }).catch(e=>{}); } }
+function toggleMicMute() { if (!localStream) return; const audioTracks = localStream.getAudioTracks(); if (audioTracks.length) { isMicMuted = !isMicMuted; audioTracks[0].enabled = !isMicMuted; updateMicStatus(); sendDeviceStatus(); } }
+function updateMicStatus() { if (isMicMuted) { micStatusSpan.innerText = "MUTED"; micMuteBtn.innerHTML = "🔇"; } else { micStatusSpan.innerText = "ACTIVE"; micMuteBtn.innerHTML = "🎤"; } }
 
-    // DOM elements
-    const videoElem = document.getElementById("previewVideo");
-    const liveStatusSpan = document.getElementById("liveStatus");
-    const micStatusSpan = document.getElementById("micStatus");
-    const flashStatusSpan = document.getElementById("flashStatus");
-    const batterySpan = document.getElementById("batteryLevel");
-    const connSpan = document.getElementById("connStatus");
-    const recTimerDisplay = document.getElementById("recTimerDisplay");
-    const recordingBadgeSpan = document.getElementById("recordingBadge");
-    const recordMainBtn = document.getElementById("recordMainBtn");
-    const switchCam = document.getElementById("switchCamBtn");
-    const flashBtn = document.getElementById("flashBtn");
-    const strobeBtn = document.getElementById("strobeBtn");
-    const micMuteBtn = document.getElementById("micMuteBtn");
-    const zoomIn = document.getElementById("zoomInBtn");
-    const zoomOut = document.getElementById("zoomOutBtn");
-    const fullscreenBtn = document.getElementById("fullscreenBtn");
-    const delayBadges = document.querySelectorAll(".delay-badge");
-
-    // ------------------------------------------------------------------
-    // 3. مساعدات البطارية والاتصال
-    async function updateBattery() {
-        if ('getBattery' in navigator) {
-            try {
-                const battery = await navigator.getBattery();
-                const level = Math.floor(battery.level * 100);
-                batterySpan.innerText = `${level}%`;
-                battery.onlevelchange = () => batterySpan.innerText = `${Math.floor(battery.level*100)}%`;
-            } catch(e) { batterySpan.innerText = "N/A"; }
-        } else { batterySpan.innerText = "—"; }
-    }
-    function updateConnectionStatus(connected) {
-        if (connected) { connSpan.innerText = "LIVE"; connSpan.style.color = "#2BDF5E"; }
-        else { connSpan.innerText = "OFFLINE"; connSpan.style.color = "#ff5e5e"; }
-    }
-    function sendDeviceStatus() {
-        if (!cameraRef) return;
-        cameraRef.update({
-            status: "ready",
-            online: true,
-            recording: isRecording,
-            muted: isMicMuted,
-            flash: currentTorch,
-            battery: batterySpan.innerText,
-            deviceName: navigator.userAgent.includes("Android") ? "Android ProCam" : "iPhone ProCam",
-            timestamp: Date.now(),
-            cameraId: cameraId
-        }).catch(e=>console.warn);
-    }
-    setInterval(sendDeviceStatus, 4000);
-    window.addEventListener("beforeunload", ()=>{
-        if (peerConnection) peerConnection.close();
-        if (localStream) localStream.getTracks().forEach(t=>t.stop());
-        cameraRef.remove().catch(e=>console.log);
+async function setupWebRTC() {
+    if (peerConnection) peerConnection.close();
+    const configuration = { iceServers: [{ urls: "stun:stun.l.google.com:19302" }, { urls: "turn:openrelay.metered.ca:80", username: "openrelayproject", credential: "openrelayproject" }] };
+    peerConnection = new RTCPeerConnection(configuration);
+    peerConnection.addTransceiver('video', { direction: 'sendonly' });
+    peerConnection.addTransceiver('audio', { direction: 'sendonly' });
+    if (localStream) localStream.getTracks().forEach(track => peerConnection.addTrack(track, localStream));
+    peerConnection.onicecandidate = (event) => { if (event.candidate) cameraRef.child("webrtc/cameraIce").push(event.candidate.toJSON()); };
+    peerConnection.oniceconnectionstatechange = () => { if (peerConnection.iceConnectionState === "connected") connSpan.innerText = "LIVE"; else if (peerConnection.iceConnectionState === "disconnected") connSpan.innerText = "OFFLINE"; };
+    const offerRef = cameraRef.child("webrtc/offer");
+    offerRef.on("value", async (snap) => {
+        const offerData = snap.val();
+        if (offerData && peerConnection && peerConnection.signalingState === "stable") {
+            await peerConnection.setRemoteDescription(new RTCSessionDescription(offerData));
+            const answer = await peerConnection.createAnswer();
+            await peerConnection.setLocalDescription(answer);
+            await cameraRef.child("webrtc/answer").set({ sdp: answer.sdp, type: answer.type });
+        }
     });
+    const studioIceRef = cameraRef.child("webrtc/studioIce");
+    studioIceRef.on("child_added", (snap) => { const candidate = snap.val(); if (candidate && peerConnection.remoteDescription) peerConnection.addIceCandidate(new RTCIceCandidate(candidate)).catch(e=>console.warn); });
+    const offer = await peerConnection.createOffer();
+    await peerConnection.setLocalDescription(offer);
+    await cameraRef.child("webrtc/offer").set({ sdp: offer.sdp, type: offer.type });
+}
 
-    // ------------------------------------------------------------------
-    // 4. الكاميرا (تبديل، فلاش، زوم، مايك)
-    async function initCamera(facingMode) {
-        if (localStream) {
-            localStream.getTracks().forEach(track => track.stop());
-            if (peerConnection) {
-                const senders = peerConnection.getSenders();
-                senders.forEach(sender => peerConnection.removeTrack(sender));
-            }
-        }
-        const constraints = {
-            video: { facingMode: { exact: facingMode }, zoom: currentZoom },
-            audio: true
-        };
-        try {
-            const stream = await navigator.mediaDevices.getUserMedia(constraints);
-            localStream = stream;
-            videoElem.srcObject = stream;
-            videoTrack = stream.getVideoTracks()[0];
-            if (videoTrack && videoTrack.getCapabilities().zoom) {
-                await videoTrack.applyConstraints({ advanced: [{ zoom: currentZoom }] });
-            }
-            if (peerConnection && peerConnection.signalingState !== "closed") {
-                localStream.getTracks().forEach(track => {
-                    peerConnection.addTrack(track, localStream);
-                });
-                const offer = await peerConnection.createOffer({ iceRestart: true });
-                await peerConnection.setLocalDescription(offer);
-                await cameraRef.child("webrtc/offer").set({ sdp: offer.sdp, type: offer.type });
-            }
-            liveStatusSpan.innerText = "CAMERA LIVE";
-            updateMicStatus();
-        } catch (err) { console.error(err); alert("الرجاء السماح بالكاميرا والميكروفون"); }
-    }
-    async function switchCamera() {
-        currentFacing = currentFacing === "user" ? "environment" : "user";
-        await initCamera(currentFacing);
-        if (currentTorch && videoTrack && videoTrack.getCapabilities().torch) {
-            await videoTrack.applyConstraints({ advanced: [{ torch: true }] });
-        }
-    }
-    async function setZoom(delta) {
-        if (!videoTrack) return;
-        const caps = videoTrack.getCapabilities();
-        if (caps.zoom) {
-            let newZoom = currentZoom + delta;
-            newZoom = Math.min(caps.zoom.max, Math.max(caps.zoom.min, newZoom));
-            currentZoom = newZoom;
-            await videoTrack.applyConstraints({ advanced: [{ zoom: currentZoom }] });
-        }
-    }
-    async function toggleFlash() {
-        if (!videoTrack || !videoTrack.getCapabilities().torch) { alert("هذا الجهاز لا يدعم الفلاش المستمر"); return; }
-        currentTorch = !currentTorch;
-        await videoTrack.applyConstraints({ advanced: [{ torch: currentTorch }] });
-        flashBtn.innerHTML = currentTorch ? '<span class="material-icons">flash_on</span>' : '<span class="material-icons">flash_off</span>';
-        flashStatusSpan.innerText = currentTorch ? "FLASH ON" : "FLASH OFF";
+function startCountdown(seconds, callback) {
+    if (activeCountdown) return;
+    activeCountdown = true;
+    let count = seconds;
+    const overlay = document.createElement("div");
+    overlay.style.cssText = "position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.85);display:flex;align-items:center;justify-content:center;z-index:200;font-size:80px;font-weight:bold;color:white;font-family:monospace;backdrop-filter:blur(12px);pointer-events:none";
+    overlay.innerText = count;
+    document.body.appendChild(overlay);
+    const interval = setInterval(() => {
+        count--;
+        if (count > 0) overlay.innerText = count;
+        else { clearInterval(interval); overlay.remove(); activeCountdown = false; if (callback) callback(); }
+    }, 1000);
+}
+function startMediaRecording() {
+    if (isRecording || !localStream) return;
+    recordedChunks = [];
+    const mime = MediaRecorder.isTypeSupported("video/webm") ? "video/webm" : "video/mp4";
+    mediaRecorder = new MediaRecorder(localStream, { mimeType: mime });
+    mediaRecorder.ondataavailable = (e) => { if (e.data.size > 0) recordedChunks.push(e.data); };
+    mediaRecorder.onstop = () => {
+        const blob = new Blob(recordedChunks, { type: "video/webm" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `video_${Date.now()}.webm`;
+        a.click();
+        URL.revokeObjectURL(url);
+        stopRecordingTimerDisplay();
+        recTimerDisplay.innerText = "00:00";
+        recordingBadgeSpan.innerHTML = "● غير مسجل";
+        isRecording = false;
+        recordMainBtn.classList.remove("recording-active");
+        recordMainBtn.innerHTML = "🔴";
         sendDeviceStatus();
-    }
-    function startStrobe() {
-        if (!videoTrack || !videoTrack.getCapabilities().torch) { alert("الفلاش غير مدعوم"); return; }
-        if (strobeInterval) clearInterval(strobeInterval);
-        strobeInterval = setInterval(async () => {
-            currentTorch = !currentTorch;
-            await videoTrack.applyConstraints({ advanced: [{ torch: currentTorch }] }).catch(e=>{});
-        }, 200);
-    }
-    function stopStrobe() {
-        if (strobeInterval) { clearInterval(strobeInterval); strobeInterval = null; }
-        if (currentTorch) toggleFlash();
-        else {
-            if(videoTrack) videoTrack.applyConstraints({ advanced: [{ torch: false }] }).catch(e=>{});
-        }
-    }
-    function toggleMicMute() {
-        if (!localStream) return;
-        const audioTracks = localStream.getAudioTracks();
-        if (audioTracks.length) {
-            isMicMuted = !isMicMuted;
-            audioTracks[0].enabled = !isMicMuted;
-            updateMicStatus();
-            sendDeviceStatus();
-        }
-    }
-    function updateMicStatus() {
-        if (isMicMuted) {
-            micStatusSpan.innerText = "MIC MUTED";
-            micMuteBtn.innerHTML = '<span class="material-icons">mic_off</span>';
-        } else {
-            micStatusSpan.innerText = "MIC ACTIVE";
-            micMuteBtn.innerHTML = '<span class="material-icons">mic</span>';
-        }
-    }
+        controlRef.child("recordCommand").set(null);
+    };
+    mediaRecorder.start(1000);
+    isRecording = true;
+    recordingStartTime = Date.now();
+    startRecordingTimerDisplay();
+    recordMainBtn.classList.add("recording-active");
+    recordMainBtn.innerHTML = "⏹️";
+    recordingBadgeSpan.innerHTML = "🔴 تسجيل";
+    sendDeviceStatus();
+    controlRef.child("recordCommand").set("start");
+}
+function stopMediaRecording() { if (mediaRecorder && isRecording && mediaRecorder.state !== "inactive") mediaRecorder.stop(); }
+function startRecordingTimerDisplay() { if (recordingTimerInterval) clearInterval(recordingTimerInterval); recordingTimerInterval = setInterval(() => { if (!isRecording) return; const elapsed = Math.floor((Date.now() - recordingStartTime) / 1000); const mins = Math.floor(elapsed / 60); const secs = elapsed % 60; recTimerDisplay.innerText = `${mins.toString().padStart(2,'0')}:${secs.toString().padStart(2,'0')}`; }, 500); }
+function stopRecordingTimerDisplay() { if (recordingTimerInterval) clearInterval(recordingTimerInterval); recordingTimerInterval = null; }
+function handleRecordWithDelay(seconds) { if (activeCountdown) return; if (isRecording) { stopMediaRecording(); return; } startCountdown(seconds, () => startMediaRecording()); }
 
-    // ------------------------------------------------------------------
-    // 5. WebRTC للإتصال مع Studio System
-    async function setupWebRTC() {
-        if (peerConnection) peerConnection.close();
-        const configuration = { iceServers: [{ urls: "stun:stun.l.google.com:19302" }] };
-        peerConnection = new RTCPeerConnection(configuration);
-        if (localStream) {
-            localStream.getTracks().forEach(track => peerConnection.addTrack(track, localStream));
+function listenStudioCommands() {
+    controlRef.on("value", (snap) => {
+        const cmd = snap.val();
+        if (!cmd) return;
+        if (cmd.hasOwnProperty("recordCommand")) {
+            if (cmd.recordCommand === "start" && !isRecording && !activeCountdown) startCountdown(3, () => startMediaRecording());
+            else if (cmd.recordCommand === "stop" && isRecording) stopMediaRecording();
+            controlRef.child("recordCommand").set(null);
         }
-        peerConnection.onicecandidate = (event) => {
-            if (event.candidate) {
-                cameraRef.child("webrtc/cameraIce").push(event.candidate.toJSON());
-            }
-        };
-        peerConnection.oniceconnectionstatechange = () => {
-            if (peerConnection.iceConnectionState === "connected") updateConnectionStatus(true);
-            else if (peerConnection.iceConnectionState === "disconnected" || peerConnection.iceConnectionState === "failed") updateConnectionStatus(false);
-        };
-        const offerRef = cameraRef.child("webrtc/offer");
-        offerRef.on("value", async (snap) => {
-            const offerData = snap.val();
-            if (offerData && peerConnection && peerConnection.signalingState === "stable") {
-                await peerConnection.setRemoteDescription(new RTCSessionDescription(offerData));
-                const answer = await peerConnection.createAnswer();
-                await peerConnection.setLocalDescription(answer);
-                await cameraRef.child("webrtc/answer").set({ sdp: answer.sdp, type: answer.type });
-            }
-        });
-        const studioIceRef = cameraRef.child("webrtc/studioIce");
-        studioIceRef.on("child_added", (snap) => {
-            const candidate = snap.val();
-            if (candidate && peerConnection.remoteDescription) {
-                peerConnection.addIceCandidate(new RTCIceCandidate(candidate)).catch(e=>console.warn);
-            }
-        });
-        const initialOffer = await peerConnection.createOffer();
-        await peerConnection.setLocalDescription(initialOffer);
-        await cameraRef.child("webrtc/offer").set({ sdp: initialOffer.sdp, type: initialOffer.type });
-    }
+        if (cmd.hasOwnProperty("mute") && typeof cmd.mute === "boolean") if (cmd.mute !== isMicMuted) toggleMicMute();
+        if (cmd.hasOwnProperty("flash") && typeof cmd.flash === "boolean") if (cmd.flash !== currentTorch) toggleFlash();
+        if (cmd.hasOwnProperty("zoom") && !isNaN(cmd.zoom)) { let target = parseFloat(cmd.zoom); if (Math.abs(target - currentZoom) > 0.05) setZoom(target - currentZoom); }
+    });
+}
+function toggleFullscreen() { if (!document.fullscreenElement) document.documentElement.requestFullscreen().catch(e=>console.warn); else document.exitFullscreen(); }
 
-    // ------------------------------------------------------------------
-    // 6. التسجيل (مع عد تنازلي، حفظ تلقائي، مؤقت)
-    function startCountdown(seconds, callback) {
-        if (activeCountdown) return;
-        activeCountdown = true;
-        let count = seconds;
-        const overlay = document.createElement("div");
-        overlay.className = "countdown-overlay";
-        overlay.innerText = count;
-        document.body.appendChild(overlay);
-        const interval = setInterval(() => {
-            count--;
-            if (count > 0) overlay.innerText = count;
-            else {
-                clearInterval(interval);
-                overlay.remove();
-                activeCountdown = false;
-                if (callback) callback();
-            }
-        }, 1000);
-    }
-    function startMediaRecording() {
-        if (isRecording || !localStream) return;
-        recordedChunks = [];
-        const mime = MediaRecorder.isTypeSupported("video/webm") ? "video/webm" : "video/mp4";
-        mediaRecorder = new MediaRecorder(localStream, { mimeType: mime });
-        mediaRecorder.ondataavailable = (e) => { if (e.data.size > 0) recordedChunks.push(e.data); };
-        mediaRecorder.onstop = () => {
-            const blob = new Blob(recordedChunks, { type: "video/webm" });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement("a");
-            a.href = url;
-            a.download = `StudioCam_${cameraId.slice(-6)}_${Date.now()}.webm`;
-            a.click();
-            URL.revokeObjectURL(url);
-            stopRecordingTimerDisplay();
-            recTimerDisplay.innerText = "00:00";
-            recordingBadgeSpan.innerHTML = "● غير مسجل";
-            isRecording = false;
-            recordMainBtn.classList.remove("recording-active");
-            recordMainBtn.innerHTML = '<span class="material-icons">circle</span>';
-            sendDeviceStatus();
-            if (controlRef) controlRef.child("recordCommand").set(null);
-        };
-        mediaRecorder.start(1000);
-        isRecording = true;
-        recordingStartTime = Date.now();
-        startRecordingTimerDisplay();
-        recordMainBtn.classList.add("recording-active");
-        recordMainBtn.innerHTML = '<span class="material-icons">stop</span>';
-        recordingBadgeSpan.innerHTML = "🔴 جاري التسجيل";
-        sendDeviceStatus();
-        if (controlRef) controlRef.child("recordCommand").set("start");
-    }
-    function stopMediaRecording() {
-        if (mediaRecorder && isRecording && mediaRecorder.state !== "inactive") {
-            mediaRecorder.stop();
-        }
-    }
-    function startRecordingTimerDisplay() {
-        if (recordingTimerInterval) clearInterval(recordingTimerInterval);
-        recordingTimerInterval = setInterval(() => {
-            if (!isRecording) return;
-            const elapsed = Math.floor((Date.now() - recordingStartTime) / 1000);
-            const mins = Math.floor(elapsed / 60);
-            const secs = elapsed % 60;
-            recTimerDisplay.innerText = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
-        }, 500);
-    }
-    function stopRecordingTimerDisplay() {
-        if (recordingTimerInterval) clearInterval(recordingTimerInterval);
-        recordingTimerInterval = null;
-    }
-    function handleRecordWithDelay(seconds) {
-        if (activeCountdown) return;
-        if (isRecording) { stopMediaRecording(); return; }
-        startCountdown(seconds, () => { startMediaRecording(); });
-    }
-
-    // ------------------------------------------------------------------
-    // 7. الإستماع لأوامر الـ Studio System (control)
-    function listenStudioCommands() {
-        controlRef.on("value", (snap) => {
-            const cmd = snap.val();
-            if (!cmd) return;
-            if (cmd.hasOwnProperty("recordCommand")) {
-                if (cmd.recordCommand === "start" && !isRecording && !activeCountdown) {
-                    startCountdown(3, () => startMediaRecording());
-                } else if (cmd.recordCommand === "stop" && isRecording) {
-                    stopMediaRecording();
-                }
-                controlRef.child("recordCommand").set(null);
-            }
-            if (cmd.hasOwnProperty("mute") && typeof cmd.mute === "boolean") {
-                if (cmd.mute !== isMicMuted) toggleMicMute();
-            }
-            if (cmd.hasOwnProperty("flash") && typeof cmd.flash === "boolean") {
-                if (cmd.flash !== currentTorch) toggleFlash();
-            }
-            if (cmd.hasOwnProperty("zoom") && !isNaN(cmd.zoom)) {
-                let target = parseFloat(cmd.zoom);
-                if (Math.abs(target - currentZoom) > 0.05) setZoom(target - currentZoom);
-            }
-        });
-    }
-
-    // ------------------------------------------------------------------
-    // 8. Fullscreen Mode
-    function toggleFullscreen() {
-        if (!document.fullscreenElement) {
-            document.documentElement.requestFullscreen().catch(e=>console.warn);
-        } else { document.exitFullscreen(); }
-    }
-    // ------------------------------------------------------------------
-    // 9. بدء التشغيل
-    (async function bootstrap() {
-        await initCamera(currentFacing);
-        await setupWebRTC();
-        listenStudioCommands();
-        updateBattery();
-        setInterval(() => updateBattery(), 30000);
-        sendDeviceStatus();
-        cameraRef.child("status").onDisconnect().set("offline");
-        cameraRef.child("online").onDisconnect().set(false);
-        switchCam.onclick = switchCamera;
-        flashBtn.onclick = toggleFlash;
-        strobeBtn.onclick = () => { if (strobeInterval) stopStrobe(); else startStrobe(); };
-        micMuteBtn.onclick = toggleMicMute;
-        zoomIn.onclick = () => setZoom(0.2);
-        zoomOut.onclick = () => setZoom(-0.2);
-        recordMainBtn.onclick = () => { if (isRecording) stopMediaRecording(); else handleRecordWithDelay(3); };
-        fullscreenBtn.onclick = toggleFullscreen;
-        delayBadges.forEach(badge => {
-            badge.onclick = () => {
-                const delay = parseInt(badge.getAttribute("data-delay"));
-                if (!isNaN(delay)) handleRecordWithDelay(delay);
-            };
-        });
-    })().catch(console.error);
+(async function bootstrap() {
+    await initCamera(currentFacing);
+    await setupWebRTC();
+    listenStudioCommands();
+    updateBattery();
+    setInterval(() => updateBattery(), 30000);
+    sendDeviceStatus();
+    cameraRef.child("status").onDisconnect().set("offline");
+    cameraRef.child("online").onDisconnect().set(false);
+    switchCam.onclick = switchCamera;
+    flashBtn.onclick = toggleFlash;
+    strobeBtn.onclick = () => { if (strobeInterval) stopStrobe(); else startStrobe(); };
+    micMuteBtn.onclick = toggleMicMute;
+    zoomIn.onclick = () => setZoom(0.2);
+    zoomOut.onclick = () => setZoom(-0.2);
+    recordMainBtn.onclick = () => { if (isRecording) stopMediaRecording(); else handleRecordWithDelay(3); };
+    fullscreenBtn.onclick = toggleFullscreen;
+    delayBadges.forEach(badge => { badge.onclick = () => { const delay = parseInt(badge.getAttribute("data-delay")); if (!isNaN(delay)) handleRecordWithDelay(delay); }; });
+})();
 </script>
 </body>
 </html>
